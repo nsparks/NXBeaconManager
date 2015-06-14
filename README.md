@@ -27,7 +27,11 @@ Similarly, to stop looking, call the following method:
 When looking for beacons, NXBeaconManager will invoke delegate methods whenever something significant happens. The manager has been written to avoid invoking the delegate needlessly. All delegate methods are optional, so your project only has to implement the exact functionality it needs without having to handle other cases. The available delegate methods are as follows:
 
 `-(void)didDetectNewClosestBeacon:(CLBeacon*)beacon;`
+
 `-(void)didLeaveRangeOfBeacon:(CLBeacon*)beacon;`
+
 `-(void)didChangeDistanceFromBeacon:(CLBeacon*)beacon;`
+
 `-(void)didDetectBeacons:(NSArray*)beacons;`
+
 `- (void)didStopDetectingBeacons;`
