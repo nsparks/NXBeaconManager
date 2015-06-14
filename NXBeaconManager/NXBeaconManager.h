@@ -12,40 +12,35 @@
 
 @protocol NXBeaconManagerDelegate <NSObject>
 
-//
-// Protocol for individual beacons
-//
-
 // Called when there is a new closest beacon.
 @optional - (void)didDetectNewClosestBeacon:(CLBeacon*)beacon;
 
-// Called when the device goes out of range of the last beacon
-@optional - (void)didLeaveRangeOfBeacon:(CLBeacon*)beacon;
+// Called when the device goes out of range of the last beacon.
+@optional - (void)didLeaveRangeOfLastBeacon:(CLBeacon*)beacon;
 
-// Called when the device changes distance from the closest beacon
+// Called when the device changes distance from the closest beacon.
 @optional - (void)didChangeDistanceFromBeacon:(CLBeacon*)beacon;
 
-//
-// Protocol for multiple beacons
-//
+// Called when beacons are found when none were before. Returns a list sorted by distance.
+@optional - (void)didFirstDetectBeacons:(NSArray*)beacons;
 
-// Called when beacons are found when none were before
+// Called when beacons are found. Returns a list sorted by distance.
 @optional - (void)didDetectBeacons:(NSArray*)beacons;
 
-// Called when no more beacons are found
+// Called when no more beacons are found.
 @optional - (void)didStopDetectingBeacons;
 
 @end
 
 @interface NXBeaconManager : NSObject
 
-@property (strong, nonatomic) id<NXBeaconManagerDelegate> delegate;
+@property (weak, nonatomic) id<NXBeaconManagerDelegate> delegate;
 
 + (instancetype)sharedManager;
 
 - (void)startLookingForBeacons;
 - (void)stopLookingForBeacons;
-
 - (void)lookForUUID:(NSUUID*)uuid;
+- (void)stopLookingForUUID:(NSUUID*)uuid;
 
 @end

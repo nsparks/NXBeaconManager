@@ -62,6 +62,27 @@
     }
 }
 
+- (void)stopLookingForUUID:(NSUUID *)uuid {
+    // remove a beacon region from the list
+    CLBeaconRegion* region = nil;
+    for (CLBeaconRegion* reg in self.beaconRegions) {
+        if ([reg.proximityUUID isEqual:uuid]) {
+            region = reg;
+            break;
+        }
+    }
+    if (region != nil) {
+        NSMutableArray* temp = [NSMutableArray arrayWithArray:self.beaconRegions];
+        [temp removeObject:region];
+        self.beaconRegions = [temp copy];
+
+        // if we're looking for beacons right now, stop looking in this region
+        if (self.isRanging) {
+            [self.locationManager stopRangingBeaconsInRegion:region];
+        }
+    }
+}
+
 - (void)startLookingForBeacons {
     for (CLBeaconRegion* region in self.beaconRegions) {
         [self.locationManager startRangingBeaconsInRegion:region];
@@ -111,7 +132,9 @@
         nearestBeacon = (CLBeacon*)beacons[0];
     } else if (self.prevNearestBeacon != nil) {
         // there are no more beacons
-        [self.delegate didStopDetectingBeacons];
+        if ([self.delegate respondsToSelector:@selector(didStopDetectingBeacons)]) {
+            [self.delegate didStopDetectingBeacons];
+        }
     } else {
         // there aren't any beacons to do anything with
         return;
@@ -119,23 +142,37 @@
 
     if (nearestBeacon == nil) {
         // no beacons in range
-        [self.delegate didLeaveRangeOfBeacon:self.prevNearestBeacon];
+        if ([self.delegate respondsToSelector:@selector(didLeaveRangeOfLastBeacon:)]) {
+            [self.delegate didLeaveRangeOfLastBeacon:self.prevNearestBeacon];
+        }
     } else if (self.prevNearestBeacon == nil) {
         // this is the first beacon we've seen recently
-        [self.delegate didDetectBeacons:beacons];
-        [self.delegate didDetectNewClosestBeacon:nearestBeacon];
+        if ([self.delegate respondsToSelector:@selector(didFirstDetectBeacons:)]) {
+            [self.delegate didFirstDetectBeacons:beacons];
+        }
+        if ([self.delegate respondsToSelector:@selector(didDetectNewClosestBeacon:)]) {
+            [self.delegate didDetectNewClosestBeacon:nearestBeacon];
+        }
     } else if (![self beaconIsSameAsPrevious:nearestBeacon]) {
         // new closest beacon
-        [self.delegate didDetectNewClosestBeacon:nearestBeacon];
+        if ([self.delegate respondsToSelector:@selector(didDetectNewClosestBeacon:)]) {
+            [self.delegate didDetectNewClosestBeacon:nearestBeacon];
+        }
     } else if ([self beaconIsSameAsPrevious:nearestBeacon] && ![self beaconRangeIsSameAsPrevious:nearestBeacon]) {
         // beacon changed distance
-        [self.delegate didChangeDistanceFromBeacon:nearestBeacon];
+        if ([self.delegate respondsToSelector:@selector(didChangeDistanceFromBeacon:)]) {
+            [self.delegate didChangeDistanceFromBeacon:nearestBeacon];
+
+        }
+    }
+
+    if ([self.delegate respondsToSelector:@selector(didDetectBeacons:)]) {
+        [self.delegate didDetectBeacons:beacons];
     }
 
     // set the new closest beacon
     self.prevNearestBeacon = nearestBeacon;
 }
-
 
 #pragma mark - Private Methods
 
