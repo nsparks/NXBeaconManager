@@ -1,5 +1,5 @@
 # NXBeaconManager
-NXBeaconManager is a simple class that makes it easy to use iBeacons in your application. It's built on top of CoreLocation and handles all the messy parts of dealing with iBeacons for you. You can add NXBeaconManager to your project either as plain files or as a library.
+NXBeaconManager is an Objective-C singleton that makes it easy to use iBeacons in your application. It's built on top of CoreLocation and handles all the messy parts of dealing with iBeacons for you. You can add NXBeaconManager to your project either as plain files or as a library.
 
 ## Installation
 1. Download NXBeaconManager from Github
